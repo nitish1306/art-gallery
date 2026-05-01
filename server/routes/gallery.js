@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const router = express.Router();
-const dataDir = path.join(process.cwd(), 'data');
+const dataDir = path.join(__dirname, '..', '..', 'data');
 
 function safeReadJSON(filename, fallback) {
   try {
@@ -14,17 +14,14 @@ function safeReadJSON(filename, fallback) {
   }
 }
 
-// GET /api/gallery/rooms — returns gallery.json (room layout) yes
 router.get('/rooms', (req, res) => {
   res.json(safeReadJSON('gallery.json', { rooms: [], spawnPoint: null }));
 });
 
-// GET /api/gallery/artworks — returns artworks.json
 router.get('/artworks', (req, res) => {
   res.json(safeReadJSON('artworks.json', []));
 });
 
-// GET /api/gallery/settings — returns settings.json
 router.get('/settings', (req, res) => {
   res.json(safeReadJSON('settings.json', {}));
 });
