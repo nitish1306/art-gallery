@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const router = express.Router();
-const dataDir = path.join(__dirname, '..', '..', 'data');
+const dataDir = path.join(process.cwd(), 'data');
 
 function safeReadJSON(filename, fallback) {
   try {
@@ -27,12 +27,6 @@ router.get('/artworks', (req, res) => {
 // GET /api/gallery/settings — returns settings.json
 router.get('/settings', (req, res) => {
   res.json(safeReadJSON('settings.json', {}));
-});
-
-// Serve settings.json
-router.get('/settings', (req, res) => {
-  const settingsPath = path.join(__dirname, '../../data/settings.json');
-  res.sendFile(settingsPath);
 });
 
 module.exports = router;
