@@ -6,8 +6,8 @@ const { v4: uuidv4 } = require('uuid');
 const { autoFix, getPreview } = require('../services/imageProcessor');
 
 const router = express.Router();
-const dataDir = path.join(__dirname, '..', '..', 'data');
-const uploadsDir = path.join(__dirname, '..', '..', 'public', 'assets', 'artworks');
+const dataDir = path.join(process.cwd(), 'data');
+const uploadsDir = path.join(process.cwd(), 'public/assets/artworks');
 
 // Ensure upload dir exists
 if (!fs.existsSync(uploadsDir)) {
