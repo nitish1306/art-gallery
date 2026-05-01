@@ -14,7 +14,7 @@ function safeReadJSON(filename, fallback) {
   }
 }
 
-// GET /api/gallery/rooms — returns gallery.json (room layout)
+// GET /api/gallery/rooms — returns gallery.json (room layout) yes
 router.get('/rooms', (req, res) => {
   res.json(safeReadJSON('gallery.json', { rooms: [], spawnPoint: null }));
 });
