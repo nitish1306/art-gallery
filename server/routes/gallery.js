@@ -29,4 +29,10 @@ router.get('/settings', (req, res) => {
   res.json(safeReadJSON('settings.json', {}));
 });
 
+// Serve settings.json
+router.get('/settings', (req, res) => {
+  const settingsPath = path.join(__dirname, '../../data/settings.json');
+  res.sendFile(settingsPath);
+});
+
 module.exports = router;
