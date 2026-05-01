@@ -15,14 +15,26 @@ function safeReadJSON(filename, fallback) {
 }
 
 router.get('/rooms', (req, res) => {
+  // Add caching headers to prevent 304 for this specific endpoint
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.json(safeReadJSON('gallery.json', { rooms: [], spawnPoint: null }));
 });
 
 router.get('/artworks', (req, res) => {
+  // Add caching headers to prevent 304 for this specific endpoint
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.json(safeReadJSON('artworks.json', []));
 });
 
 router.get('/settings', (req, res) => {
+  // Add caching headers to prevent 304 for this specific endpoint
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.json(safeReadJSON('settings.json', {}));
 });
 
