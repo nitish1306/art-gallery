@@ -12,7 +12,11 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "public/assets/index.html"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "public/assets/admin.html"
     }
   ]
 }
