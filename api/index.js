@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+// ADD THIS LINE AT THE VERY TOP OF THE FILE
+console.log('Vercel API function: api/index.js invoked!');
 
 const adminRoutes = require('../server/routes/admin');
 const galleryRoutes = require('../server/routes/gallery');
