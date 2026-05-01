@@ -136,7 +136,3 @@ The built files will be in the `dist/` folder. Serve with any static file server
 ```bash
 npm start
 ```
-
-## Original File Names Reference
-
-All `.js`, `.css`, `.html`, and `.json` files have been renamed with `.txt` appended. All `.jpg` and `.png` asset files were removed. Below is the original file structure for reference.
