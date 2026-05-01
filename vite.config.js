@@ -7,8 +7,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        gallery: resolve(__dirname, 'index.html'),
-        admin: resolve(__dirname, 'admin/index.html'),
+        gallery: resolve(__dirname, 'public/index.html'),
+        admin: resolve(__dirname, 'public/admin.html'),
       },
     },
   },
