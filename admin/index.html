@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Art Gallery - Admin</title>
+  <link rel="stylesheet" href="/src/admin/admin.css">
+</head>
+<body>
+  <header>
+    <h1>Art Gallery Admin</h1>
+    <a href="/" class="gallery-link">View Gallery</a>
+  </header>
+
+  <!-- Tab Bar -->
+  <nav id="tab-bar">
+    <button class="tab active" data-tab="artworks">Artworks</button>
+    <button class="tab" data-tab="rooms">Rooms</button>
+    <button class="tab" data-tab="theme">Theme</button>
+  </nav>
+
+  <main>
+    <!-- ═══════════ ARTWORKS TAB ═══════════ -->
+    <div id="tab-artworks" class="tab-panel active">
+      <section id="upload-section">
+        <h2>Upload Artwork</h2>
+        <div id="dropzone">
+          <p>Drag &amp; drop an image here, or <label for="file-input" class="browse-link">browse</label></p>
+          <input type="file" id="file-input" accept="image/*" hidden>
+        </div>
+
+        <div id="preview-area" class="hidden">
+          <h3>Before / After</h3>
+          <div id="preview-images">
+            <div class="preview-card">
+              <span>Original</span>
+              <img id="preview-before" alt="Before">
+            </div>
+            <div class="preview-card">
+              <span>Processed</span>
+              <img id="preview-after" alt="After">
+            </div>
+          </div>
+
+          <form id="artwork-form">
+            <input type="hidden" id="form-temp-file">
+            <input type="hidden" id="form-edit-id">
+
+            <div class="form-row">
+              <label for="form-title">Title *</label>
+              <input type="text" id="form-title" required>
+            </div>
+            <div class="form-row two-col">
+              <div>
+                <label for="form-date">Date</label>
+                <input type="text" id="form-date" placeholder="e.g. 2024">
+              </div>
+              <div>
+                <label for="form-medium">Medium</label>
+                <input type="text" id="form-medium" placeholder="e.g. Oil on Canvas">
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="form-description">Description</label>
+              <textarea id="form-description" rows="3"></textarea>
+            </div>
+            <div class="form-row two-col">
+              <div>
+                <label for="form-room">Room *</label>
+                <select id="form-room" required></select>
+              </div>
+              <div>
+                <label for="form-wall">Wall *</label>
+                <select id="form-wall" required>
+                  <option value="north">North</option>
+                  <option value="south">South</option>
+                  <option value="east">East</option>
+                  <option value="west">West</option>
+                  <option value="partition-north">Partition (North face)</option>
+                  <option value="partition-south">Partition (South face)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="form-position">Position along wall: <span id="position-value">0.50</span></label>
+              <input type="range" id="form-position" min="0" max="1" step="0.05" value="0.5">
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="save-btn">Save Artwork</button>
+              <button type="button" id="cancel-btn">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="list-section">
+        <h2>Artworks <span id="artwork-count"></span></h2>
+        <div id="artwork-grid"></div>
+      </section>
+    </div>
+
+    <!-- ═══════════ ROOMS TAB ═══════════ -->
+    <div id="tab-rooms" class="tab-panel">
+      <section>
+        <h2>Room Layout</h2>
+        <div id="room-layout-row">
+          <div id="room-list"></div>
+          <canvas id="room-preview" width="360" height="200"></canvas>
+        </div>
+      </section>
+
+      <section id="add-room-section">
+        <h2>Add Room</h2>
+        <form id="add-room-form" class="inline-form">
+          <input type="text" id="new-room-name" placeholder="Room name" required>
+          <select id="new-room-template">
+            <option value="small">Small (8x6)</option>
+            <option value="medium" selected>Medium (12x10)</option>
+            <option value="large">Large (16x12)</option>
+          </select>
+          <button type="submit">Add Room</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Spawn Point</h2>
+        <div class="form-row">
+          <label for="spawn-room">Starting room</label>
+          <select id="spawn-room"></select>
+        </div>
+        <button id="save-spawn-btn" class="btn-primary">Save Spawn</button>
+      </section>
+    </div>
+
+    <!-- ═══════════ THEME TAB ═══════════ -->
+    <div id="tab-theme" class="tab-panel">
+      <section>
+        <h2>Gallery Name</h2>
+        <div class="form-row">
+          <input type="text" id="theme-gallery-name">
+        </div>
+      </section>
+
+      <section>
+        <h2>Textures</h2>
+        <div class="form-row">
+          <label>Walls</label>
+          <div id="tex-walls" class="texture-grid"></div>
+        </div>
+        <div class="form-row">
+          <label>Floor</label>
+          <div id="tex-floor" class="texture-grid"></div>
+        </div>
+        <div class="form-row">
+          <label>Ceiling</label>
+          <div id="tex-ceiling" class="texture-grid"></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Lighting</h2>
+        <div class="form-row two-col">
+          <div>
+            <label for="ambient-color">Ambient Color</label>
+            <input type="color" id="ambient-color" value="#ffffff">
+          </div>
+          <div>
+            <label for="ambient-intensity">Ambient Intensity: <span id="ambient-int-val">0.4</span></label>
+            <input type="range" id="ambient-intensity" min="0" max="2" step="0.05" value="0.4">
+          </div>
+        </div>
+        <div class="form-row two-col">
+          <div>
+            <label for="spot-color">Spotlight Color</label>
+            <input type="color" id="spot-color" value="#ffcc66">
+          </div>
+          <div>
+            <label for="spot-intensity">Spotlight Intensity: <span id="spot-int-val">1.2</span></label>
+            <input type="range" id="spot-intensity" min="0" max="5" step="0.1" value="1.2">
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="spot-angle">Spotlight Angle: <span id="spot-angle-val">0.4</span></label>
+          <input type="range" id="spot-angle" min="0.1" max="1.2" step="0.05" value="0.4">
+        </div>
+      </section>
+
+      <section>
+        <h2>Audio</h2>
+        <div class="form-row">
+          <label for="audio-volume">Default Volume: <span id="audio-vol-val">0.3</span></label>
+          <input type="range" id="audio-volume" min="0" max="1" step="0.05" value="0.3">
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button id="save-theme-btn" class="btn-primary">Save Theme Settings</button>
+      </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toast" class="hidden"></div>
+  </main>
+
+  <script type="module" src="/src/admin/artworkManager.js"></script>
+  <script type="module" src="/src/admin/roomEditor.js"></script>
+  <script type="module" src="/src/admin/themeManager.js"></script>
+  <script type="module" src="/src/admin/tabs.js"></script>
+</body>
+</html>

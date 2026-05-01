@@ -1,0 +1,24 @@
+{
+  "galleryName": "Art Gallery by Nitish.",
+  "theme": {
+    "walls": "white-abstract-texture-background",
+    "floor": "brown-blank-walnut-wood-texture-background",
+    "ceiling": "white-abstract-texture-background"
+  },
+  "lighting": {
+    "ambient": {
+      "color": "#ffffff",
+      "intensity": 0.35
+    },
+    "spotlight": {
+      "color": "#ffcc66",
+      "intensity": 1.4,
+      "angle": 0.45
+    }
+  },
+  "audio": {
+    "track": "audio/ambient.mp3",
+    "volume": 0.3,
+    "autoplay": true
+  }
+}
