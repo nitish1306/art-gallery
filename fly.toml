@@ -1,12 +1,21 @@
-app = 'art-gallery'
+# fly.toml app configuration file generated for art-gallery-gleaming-cherry-4264 on 2026-05-02T18:18:37+05:30
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'art-gallery-gleaming-cherry-4264'
 primary_region = 'bom'
 
 [build]
 
 [env]
-  NODE_ENV = 'production'
   DATA_DIR = '/data'
+  NODE_ENV = 'production'
   PORT = '8080'
+
+[[mounts]]
+  source = 'gallery_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 8080
@@ -15,11 +24,8 @@ primary_region = 'bom'
   auto_start_machines = true
   min_machines_running = 0
 
-[mounts]
-  source = 'gallery_data'
-  destination = '/data'
-
 [[vm]]
   memory = '512mb'
   cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 512
