@@ -1,6 +1,12 @@
 {
   "cleanUrls": true,
-   "functions": {
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/[...slug].js"
+    }
+  ],
+  "functions": {
     "api/[...slug].js": {
       "includeFiles": "data/**"
     }

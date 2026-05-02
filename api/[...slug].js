@@ -8,8 +8,16 @@ const galleryRoutes = require('../server/routes/gallery');
 
 const app = express();
 const PORT = process.env.API_PORT || 3456;
+
+app.get('/api', (req, res) => {
+  
+  console.log(adminRoutes + ' --- -- -- - ' + galleryRoutes);
+  res.json({ ok: true });
+});
+
 app.use((req, res, next) => {
   console.log(`[Express] Request URL: ${req.url}, Method: ${req.method}`);
+  console.log(adminRoutes + ' --- -- -- - ' + galleryRoutes);
   next(); // Pass control to the next middleware/route handler
 });
 // Parse JSON request bodies
