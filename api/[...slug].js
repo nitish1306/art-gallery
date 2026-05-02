@@ -19,8 +19,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API routes
-app.use('/admin', adminRoutes);
-app.use('/gallery', galleryRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 const serverless = require('serverless-http');
 module.exports = serverless(app);
