@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.gitignore
+*.md
+.env
+fly.toml
+# Don't include dev-uploaded artworks in the image — they live on the volume
+public/assets/artworks/*.jpg
+public/assets/artworks/*.jpeg
+public/assets/artworks/*.png
+public/assets/artworks/*.gif
+public/assets/artworks/*.webp
+public/assets/artworks/thumbs/

@@ -2,7 +2,8 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
 
-const artworksDir = path.join(__dirname, '..', '..', 'public', 'assets', 'artworks');
+const baseDir = process.env.DATA_DIR || path.join(__dirname, '..', '..');
+const artworksDir = path.join(baseDir, 'public', 'assets', 'artworks');
 const thumbsDir = path.join(artworksDir, 'thumbs');
 
 // Ensure thumbs directory exists

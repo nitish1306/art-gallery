@@ -3,7 +3,8 @@ const path = require('path');
 const fs = require('fs');
 
 const router = express.Router();
-const dataDir = path.join(__dirname, '..', '..', 'data');
+const baseDir = process.env.DATA_DIR || path.join(__dirname, '..', '..');
+const dataDir = path.join(baseDir, 'data');
 
 function safeReadJSON(filename, fallback) {
   try {

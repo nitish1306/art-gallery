@@ -6,8 +6,11 @@ const { v4: uuidv4 } = require('uuid');
 const { autoFix, getPreview } = require('../services/imageProcessor');
 
 const router = express.Router();
-const dataDir = path.join(__dirname, '..', '..', 'data');
-const uploadsDir = path.join(__dirname, '..', '..', 'public', 'assets', 'artworks');
+
+// Paths — configurable via DATA_DIR env var for persistent disk mounts (e.g. Fly.io)
+const baseDir = process.env.DATA_DIR || path.join(__dirname, '..', '..');
+const dataDir = path.join(baseDir, 'data');
+const uploadsDir = path.join(baseDir, 'public', 'assets', 'artworks');
 
 // Ensure upload dir exists
 if (!fs.existsSync(uploadsDir)) {
@@ -86,7 +89,7 @@ router.post('/artworks', express.json(), async (req, res) => {
     const result = await autoFix(inputPath);
 
     // Clean up raw upload if different from processed
-    const processedFullPath = path.join(__dirname, '..', '..', 'public', result.processedPath);
+    const processedFullPath = path.join(baseDir, 'public', result.processedPath);
     if (path.resolve(inputPath) !== path.resolve(processedFullPath)) {
       fs.unlinkSync(inputPath);
     }
@@ -143,7 +146,7 @@ router.delete('/artworks/:id', (req, res) => {
   const artwork = artworks[idx];
 
   // Delete image files
-  const publicDir = path.join(__dirname, '..', '..', 'public');
+  const publicDir = path.join(baseDir, 'public');
   const imagePath = path.join(publicDir, artwork.image);
   const thumbPath = path.join(publicDir, artwork.thumbnail);
 
@@ -267,7 +270,7 @@ router.put('/settings', express.json(), (req, res) => {
 
 // GET /api/admin/textures — list available texture files
 router.get('/textures', (req, res) => {
-  const texDir = path.join(__dirname, '..', '..', 'public', 'assets', 'textures');
+  const texDir = path.join(baseDir, 'public', 'assets', 'textures');
   try {
     const files = fs.readdirSync(texDir).filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f));
     const textures = files.map(f => ({

@@ -131,8 +131,144 @@ Room sizes can be changed in the admin panel. For custom partition walls, edit `
 npm run build
 ```
 
-The built files will be in the `dist/` folder. Serve with any static file server alongside the API:
+The built files will be in the `dist/` folder. In production the Express server serves both the API and the built frontend — no separate static file server needed:
 
 ```bash
-npm start
+NODE_ENV=production node server/index.js
 ```
+
+---
+
+## Deploying to Fly.io
+
+[Fly.io](https://fly.io) is the recommended hosting platform. It runs a real Node.js container (required for `sharp` image processing and `multer` file uploads), offers a **free persistent volume** for uploaded data, and restarts from sleep in **2–5 seconds**.
+
+### Prerequisites
+
+Install the Fly CLI:
+
+```bash
+# Windows (PowerShell)
+pwsh -Command "iwr https://fly.io/install.ps1 -useb | iex"
+
+# macOS / Linux
+curl -L https://fly.io/install.sh | sh
+```
+
+Then sign up / log in:
+
+```bash
+fly auth signup    # or: fly auth login
+```
+
+### Step 1 — Launch the app
+
+From the project root:
+
+```bash
+fly launch
+```
+
+When prompted:
+- **App name**: `art-gallery` (or any name)
+- **Region**: pick the closest to you (e.g. `iad` for US East, `lhr` for London)
+- **Would you like to set up a Postgresql database?**: No (for now)
+- **Would you like to set up an Upstash Redis database?**: No
+
+This detects the existing `fly.toml` and `Dockerfile` in the repo.
+
+### Step 2 — Create a persistent volume
+
+```bash
+fly volumes create gallery_data --size 1 --region iad
+```
+
+> Replace `iad` with your chosen region. The 1GB volume is free.
+
+The volume name `gallery_data` matches the `[mounts]` section in `fly.toml`.
+
+### Step 3 — Deploy
+
+```bash
+fly deploy
+```
+
+This builds the Docker image, pushes it, and starts the app. On first boot, `start.sh` seeds the volume with default JSON config and bundled textures.
+
+### Fly.io Configuration Reference
+
+All config is in `fly.toml`:
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `primary_region` | `iad` | Deploy region |
+| `NODE_ENV` | `production` | Enables static file serving from `dist/` |
+| `DATA_DIR` | `/data` | Points server to persistent volume |
+| `PORT` | `8080` | Internal port Fly routes traffic to |
+| `internal_port` | `8080` | Must match `PORT` |
+| `auto_stop_machines` | `stop` | Sleeps after inactivity (free tier friendly) |
+| `auto_start_machines` | `true` | Wakes on incoming request (~2–5s) |
+| `min_machines_running` | `0` | Allows full sleep to save resources |
+| Volume mount | `/data` | Persistent storage for JSON + uploads |
+
+### What gets deployed
+
+```
+┌──────────────────────────────────────────────┐
+│            Fly.io Machine (container)         │
+│                                               │
+│   Express server (server/index.js)            │
+│   ├── /api/*            → API routes          │
+│   ├── /assets/*         → Volume (/data)      │
+│   ├── /admin/*          → dist/admin/         │
+│   └── /*                → dist/index.html     │
+│                                               │
+│   Persistent Volume mounted at /data          │
+│   ├── data/             → JSON config files   │
+│   └── public/assets/    → Uploaded artworks   │
+└──────────────────────────────────────────────┘
+```
+
+### Useful commands
+
+```bash
+fly status              # App status and machine info
+fly logs                # Stream live logs
+fly ssh console         # SSH into the running container
+fly volumes list        # Check volume status
+fly deploy              # Redeploy after code changes
+fly open                # Open the app URL in browser
+```
+
+### Custom domain (optional)
+
+```bash
+fly certs add yourdomain.com
+```
+
+Then add a CNAME record pointing `yourdomain.com` to `art-gallery.fly.dev` in your DNS.
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Images lost after deploy | Check volume is mounted: `fly volumes list`. Verify `DATA_DIR=/data` in `fly.toml` |
+| 404 on gallery page | Run `fly ssh console` then `ls /app/dist/` — if empty, the build failed |
+| `sharp` errors | The Dockerfile uses `node:20-slim` (Linux) — `sharp` installs correct binaries. Try `fly deploy --no-cache` |
+| Admin panel not loading | Check `ls /app/dist/admin/index.html` exists via SSH |
+| Slow first load | Machine is waking from sleep (~2–5s). Set `min_machines_running = 1` to stay warm (uses more free quota) |
+| Volume full | `fly volumes list` shows usage. Resize: `fly volumes extend <vol_id> --size 2` |
+
+### Future: Adding a Database
+
+When ready to replace JSON files with a database:
+
+| Option | Command | Notes |
+|--------|---------|-------|
+| **Fly Postgres** | `fly postgres create` | Managed, free tier (shared CPU + 1GB). Connect via `DATABASE_URL` env var |
+| **SQLite on volume** | Already have the volume | Simplest — just use the `/data` mount. Add Litestream for backups |
+| **External** (Supabase, Neon) | Set `DATABASE_URL` env var | `fly secrets set DATABASE_URL=postgres://...` |
+
+## License
+
+MIT
