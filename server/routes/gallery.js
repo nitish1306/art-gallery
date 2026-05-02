@@ -16,6 +16,7 @@ function safeReadJSON(filename, fallback) {
 
 router.get('/rooms', (req, res) => {
   // Add caching headers to prevent 304 for this specific endpoint
+  console.log('GET /api/gallery/rooms handler invoked!');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
@@ -24,6 +25,7 @@ router.get('/rooms', (req, res) => {
 
 router.get('/artworks', (req, res) => {
   // Add caching headers to prevent 304 for this specific endpoint
+  console.log('GET /api/gallery/artworks handler invoked!');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
@@ -32,6 +34,7 @@ router.get('/artworks', (req, res) => {
 
 router.get('/settings', (req, res) => {
   // Add caching headers to prevent 304 for this specific endpoint
+  console.log('GET /api/gallery/settings handler invoked!');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');

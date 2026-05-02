@@ -8,7 +8,10 @@ const galleryRoutes = require('../server/routes/gallery');
 
 const app = express();
 const PORT = process.env.API_PORT || 3456;
-
+app.use((req, res, next) => {
+  console.log(`[Express] Request URL: ${req.url}, Method: ${req.method}`);
+  next(); // Pass control to the next middleware/route handler
+});
 // Parse JSON request bodies
 app.use(express.json());
 
