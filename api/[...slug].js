@@ -15,8 +15,8 @@ app.get('/api', (req, res) => {
 });
 
 app.use((req, res, next) => {
-  console.log(`[Express] Request URL: ${req.url}, Method: ${req.method}`);
-  console.log(adminRoutes + ' --- -- -- - ' + galleryRoutes);
+  console.log(`[Express] Method: ${req.method}, Path: ${req.path}, URL: ${req.url}`);
+  console.log(adminRoutes.toString() + ' --- -- -- - ' + galleryRoutes.toString());
   next(); // Pass control to the next middleware/route handler
 });
 // Parse JSON request bodies
@@ -26,8 +26,13 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API routes
-app.use('/api/admin', adminRoutes);
-app.use('/api/gallery', galleryRoutes);
+app.use(['/api/admin', '/admin'] , adminRoutes);
+app.use(['/api/gallery', '/gallery'] , galleryRoutes);
+
+app.use((req, res) => {
+  console.log(`[404] No match for: ${req.url}`);
+  res.status(404).json({ error: `Route ${req.url} not found` });
+});
 
 const serverless = require('serverless-http');
 module.exports = serverless(app);
