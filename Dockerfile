@@ -1,14 +1,10 @@
 # Build stage
 FROM node:20-slim AS build
 WORKDIR /app
-ARG CACHE_BUST=1
-RUN echo "cache bust: $CACHE_BUST"
-COPY package.json package-lock.json ./
-RUN npm ci --include=dev
-# 🔍 Debug (temporary, remove later)
-RUN npm list vite
+
 COPY . .
 
+RUN npm install
 RUN npm run build
 # Production stage
 FROM node:20-slim
@@ -19,7 +15,7 @@ WORKDIR /app
 
 COPY --from=build /app/package.json ./
 COPY --from=build /app/package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
