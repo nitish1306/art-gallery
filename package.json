@@ -7,7 +7,7 @@
     "dev": "node server/index.js & npx vite",
     "start": "node server/index.js",
     "gallery": "npx vite",
-    "build": "npx vite build",
+    "build": "vite build",
     "api": "node server/index.js"
   },
   "keywords": [
