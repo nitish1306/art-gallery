@@ -10,8 +10,7 @@ const app = express();
 const PORT = process.env.API_PORT || 3456;
 
 app.get('/api', (req, res) => {
-  
-  console.log(adminRoutes + ' --- -- -- - ' + galleryRoutes);
+  console.log(adminRoutes.toString() + ' --- -- -- - ' + galleryRoutes.toString());
   res.json({ ok: true });
 });
 
