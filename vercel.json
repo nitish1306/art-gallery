@@ -1,9 +1,9 @@
 {
   "cleanUrls": true,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/[...slug].js"
+      "source": "/api/:path*",
+      "destination": "/api"
     }
   ],
   "functions": {
