@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
-  "functions": {
-    "api/index.js": {
+   "functions": {
+    "api/[...slug].js": {
       "includeFiles": "data/**"
     }
   }
