@@ -7,7 +7,7 @@
     }
   ],
   "functions": {
-    "api/[...slug].js": {
+    "api/index.js": {
       "includeFiles": "data/**"
     }
   }
