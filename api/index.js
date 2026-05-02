@@ -8,7 +8,10 @@ const galleryRoutes = require('../server/routes/gallery');
 
 const app = express();
 const PORT = process.env.API_PORT || 3456;
-
+app.use((req, res, next) => {
+if (req.originalUrl && req.originalUrl !== req.url) req.url = req.originalUrl;
+next();
+});
 app.get('/api', (req, res) => {
   console.log(adminRoutes.toString() + ' --- -- -- - ' + galleryRoutes.toString());
   res.json({ ok: true });
