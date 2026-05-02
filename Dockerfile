@@ -18,7 +18,6 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
 COPY --from=build /app/data ./data
 COPY --from=build /app/public ./public
-COPY --from=build /app/package.json ./
 COPY start.sh ./
 RUN chmod +x start.sh
 
