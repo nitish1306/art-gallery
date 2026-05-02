@@ -2,7 +2,7 @@
 FROM node:20-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev
+RUN npm ci
 COPY . .
 RUN npx vite build
 
@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
+COPY --from=build /app/package.json ./package-lock.json* ./
+RUN npm ci --omit=dev
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
