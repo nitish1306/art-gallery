@@ -42,6 +42,8 @@ let gyroAlpha = 0;
 let gyroBeta = 0;
 let gyroBaseAlpha = null;
 let gyroBaseBeta = null;
+let initialYaw = 0;
+let initialPitch = 0;
 
 // Tap-to-move state
 let tapTarget = null; // THREE.Vector3 or null
@@ -365,6 +367,8 @@ function onDeviceOrientation(e) {
   if (gyroBaseAlpha === null) {
     gyroBaseAlpha = e.alpha;
     gyroBaseBeta = e.beta;
+    initialYaw = yaw;
+    initialPitch = pitch;
   }
 
   gyroAlpha = e.alpha;
@@ -380,9 +384,9 @@ function applyGyro() {
 
   let deltaBeta = gyroBeta - gyroBaseBeta;
 
-  yaw = -(deltaAlpha * Math.PI) / 180;
+  yaw = initialYaw + (deltaAlpha * Math.PI) / 180;
   pitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1,
-    -(deltaBeta * Math.PI) / 180));
+    initialPitch + (deltaBeta * Math.PI) / 180));
 }
 
 // ─── Collision ───

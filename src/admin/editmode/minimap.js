@@ -130,21 +130,20 @@ export function updateMinimap() {
   const ppx = offsetX + (playerGridX - minX) * scale;
   const ppz = offsetZ + (playerGridZ - minZ) * scale;
 
-  // Direction arrow
   const dir = new THREE.Vector3();
   camera.getWorldDirection(dir);
-  const angle = Math.atan2(dir.x, dir.z);
-
+  
   ctx.save();
   ctx.translate(ppx, ppz);
-  ctx.rotate(-angle);
+  // Angle from +X axis (Right)
+  ctx.rotate(Math.atan2(dir.z, dir.x));
 
-  // Arrow body
+  // Draw arrow pointing Right (+X)
   ctx.fillStyle = '#00ff88';
   ctx.beginPath();
-  ctx.moveTo(0, -5);
-  ctx.lineTo(3, 4);
-  ctx.lineTo(-3, 4);
+  ctx.moveTo(5, 0);     // Tip pointing right
+  ctx.lineTo(-4, 3);    // Bottom left
+  ctx.lineTo(-4, -3);   // Top left
   ctx.closePath();
   ctx.fill();
 
