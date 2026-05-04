@@ -4,7 +4,7 @@ import { initControls, updateControls } from './controls.js';
 import { isMobileDevice, initMobileControls, updateMobileControls } from './mobileControls.js';
 import { detectQuality, applyQuality, recordFrame } from './quality.js';
 import { initHUD, updateHUD } from './hud.js';
-import { initLighting } from './lighting.js';
+import { initLighting, buildGridLights } from './lighting.js';
 import { loadArtworks } from './artworkLoader.js';
 import { initInteraction, updateInteraction } from './interaction.js';
 import { initAudio } from './audio.js';
@@ -111,6 +111,7 @@ async function initScene() {
 
   // Lighting
   initLighting(scene, settings);
+  buildGridLights(scene, gridData);
 
   // Load artworks
   const galData = {

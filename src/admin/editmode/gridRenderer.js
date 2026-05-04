@@ -15,10 +15,12 @@ let gridLinesGroup = null;
 let gridData = null;
 
 const wallCellMeshes = [];
+const ceilingMeshes = [];
 const gridCollisionBoxes = [];
 
 export function getGridData() { return gridData; }
 export function getWallCellMeshes() { return wallCellMeshes; }
+export function getCeilingMeshes() { return ceilingMeshes; }
 export function getGridCollisionBoxes() { return gridCollisionBoxes; }
 
 /**
@@ -82,6 +84,7 @@ export async function buildGrid(parent, data, settings) {
         ceil.rotation.x = Math.PI / 2;
         ceil.position.set(wx, wallHeight, wz);
         floorMeshGroup.add(ceil);
+        ceilingMeshes.push(ceil);
 
       } else if (cell === 1 || cell === 2) {
         if (!isAdjacentToAir(grid, x, z, width, depth)) continue;
@@ -134,6 +137,7 @@ export function clearGrid(parent) {
   if (floorMeshGroup) { parent.remove(floorMeshGroup); floorMeshGroup = null; }
   if (gridLinesGroup) { parent.remove(gridLinesGroup); gridLinesGroup = null; }
   wallCellMeshes.length = 0;
+  ceilingMeshes.length = 0;
   gridCollisionBoxes.length = 0;
 }
 

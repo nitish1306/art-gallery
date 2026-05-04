@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { initControls, updateControls } from '../../gallery/controls.js';
 import { applyQuality, recordFrame } from '../../gallery/quality.js';
-import { initLighting } from '../../gallery/lighting.js';
+import { initLighting, buildGridLights } from '../../gallery/lighting.js';
 import { loadArtworks } from '../../gallery/artworkLoader.js';
 import { buildGrid, getGridCollisionBoxes } from './gridRenderer.js';
 import { initMinimap, setMinimapGrid, setMinimapArtworks, updateMinimap } from './minimap.js';
@@ -82,6 +82,7 @@ async function initScene() {
   // Build grid world
   await buildGrid(scene, gridData, settings);
   initLighting(scene, settings);
+  buildGridLights(scene, gridData);
 
   // Load artworks using a virtual "grid" room
   const galData = gridToGalleryData(gridData);
@@ -129,6 +130,21 @@ function gridToGalleryData(gd) {
 function refreshStashUI() {
   const stashGrid = document.getElementById('stash-grid');
   stashGrid.innerHTML = '';
+
+  const createLightItem = (type, title, emoji) => {
+    const div = document.createElement('div');
+    div.className = 'stash-item light-stash-item';
+    div.innerHTML = `<div style="font-size:32px;text-align:center;padding:10px 0;">${emoji}</div><p>${title}</p>`;
+    div.addEventListener('click', () => {
+      document.querySelectorAll('.stash-item').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      setSelectedStashItem({ isLight: true, type, id: 'new_' + Date.now() });
+    });
+    return div;
+  };
+
+  stashGrid.appendChild(createLightItem('headlight', 'Headlight', '💡'));
+  stashGrid.appendChild(createLightItem('spotlight', 'Spotlight', '🔦'));
 
   const stashed = getStashedArtworks();
   stashed.forEach(art => {

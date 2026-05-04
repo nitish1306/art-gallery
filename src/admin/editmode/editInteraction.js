@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { buildGrid, clearGrid, getWallCellMeshes, getGridData, recalcBoundary } from './gridRenderer.js';
+import { buildGrid, clearGrid, getWallCellMeshes, getCeilingMeshes, getGridData, recalcBoundary } from './gridRenderer.js';
 import { getArtworkMeshes, clearArtworkMeshes } from '../../gallery/artworkLoader.js';
 import { loadArtworks } from '../../gallery/artworkLoader.js';
-import { initLighting } from '../../gallery/lighting.js';
+import { initLighting, getLightMeshes } from '../../gallery/lighting.js';
 import { setMinimapGrid, setMinimapArtworks } from './minimap.js';
 
 let camera, scene, renderer, settings;
@@ -266,6 +266,14 @@ function onRightClick() {
       const mesh = artHits[0].object;
       const artData = mesh.userData.artwork;
       stashArtwork(artData, mesh.parent);
+      return;
+    }
+
+    const lightHits = raycaster.intersectObjects(getLightMeshes(), false);
+    if (lightHits.length > 0 && lightHits[0].distance < 6) {
+      const mesh = lightHits[0].object;
+      const lightData = mesh.userData.lightData;
+      stashLight(lightData);
     }
   }
 }
@@ -284,10 +292,18 @@ function handleSelectToolClick() {
     return;
   }
 
+  const lightHits = raycaster.intersectObjects(getLightMeshes(), false);
+  if (lightHits.length > 0 && lightHits[0].distance < 6) {
+    draggedGroup = lightHits[0].object; // Light fixtures are direct meshes
+    return;
+  }
+
   if (selectedStashItem) {
-    const wallHits = raycaster.intersectObjects(getWallCellMeshes(), false);
-    if (wallHits.length > 0 && wallHits[0].distance < 6) {
-      placeStashedArtwork(wallHits[0]);
+    const isHeadlight = selectedStashItem.isLight && selectedStashItem.type === 'headlight';
+    const targetMeshes = isHeadlight ? getCeilingMeshes() : getWallCellMeshes();
+    const targetHits = raycaster.intersectObjects(targetMeshes, false);
+    if (targetHits.length > 0 && targetHits[0].distance < 6) {
+      placeStashedArtwork(targetHits[0]);
     }
   }
 }
@@ -303,24 +319,31 @@ export function updateEditInteraction() {
   raycaster.setFromCamera(mouse, camera);
 
   if (currentTool === 'select') {
-    const wallHits = raycaster.intersectObjects(getWallCellMeshes(), false);
+    const isDraggingHeadlight = draggedGroup && draggedGroup.userData.isLight && draggedGroup.userData.type === 'headlight';
+    const isStashingHeadlight = selectedStashItem && selectedStashItem.isLight && selectedStashItem.type === 'headlight';
+    const targetMeshes = (isDraggingHeadlight || isStashingHeadlight) ? getCeilingMeshes() : getWallCellMeshes();
+    const targetHits = raycaster.intersectObjects(targetMeshes, false);
 
     if (draggedGroup) {
-      if (wallHits.length > 0 && wallHits[0].distance < 10) {
-        const hit = wallHits[0];
+      if (targetHits.length > 0 && targetHits[0].distance < 10) {
+        const hit = targetHits[0];
         const wn = getWorldNormal(hit);
         draggedGroup.position.copy(hit.point);
         draggedGroup.position.addScaledVector(wn, 0.02);
-        draggedGroup.rotation.y = Math.atan2(wn.x, wn.z);
+        if (!isDraggingHeadlight) {
+          draggedGroup.rotation.y = Math.atan2(wn.x, wn.z);
+        }
       }
       if (placementGhost) placementGhost.visible = false;
     } else if (selectedStashItem) {
-      if (wallHits.length > 0 && wallHits[0].distance < 10) {
-        const hit = wallHits[0];
+      if (targetHits.length > 0 && targetHits[0].distance < 10) {
+        const hit = targetHits[0];
         const wn = getWorldNormal(hit);
         placementGhost.position.copy(hit.point);
         placementGhost.position.addScaledVector(wn, 0.02);
-        placementGhost.rotation.y = Math.atan2(wn.x, wn.z);
+        if (!isStashingHeadlight) {
+          placementGhost.rotation.y = Math.atan2(wn.x, wn.z);
+        }
         placementGhost.visible = true;
       } else {
         placementGhost.visible = false;
@@ -388,29 +411,49 @@ function worldToRoomWall(worldPos, worldNormal) {
 function dropArtwork() {
   if (!draggedGroup) return;
 
-  const artMesh = draggedGroup.children.find(c => c.userData && c.userData.artwork);
-  if (!artMesh) { draggedGroup = null; return; }
-  const artData = artMesh.userData.artwork;
+  const isLight = draggedGroup.userData.isLight;
+  let artData = null;
+  let lightData = null;
+
+  if (isLight) {
+    lightData = draggedGroup.userData.lightData;
+  } else {
+    const artMesh = draggedGroup.children.find(c => c.userData && c.userData.artwork);
+    if (!artMesh) { draggedGroup = null; return; }
+    artData = artMesh.userData.artwork;
+  }
 
   raycaster.setFromCamera(mouse, camera);
-  const wallHits = raycaster.intersectObjects(getWallCellMeshes(), false);
+  const targetMeshes = (isLight && draggedGroup.userData.type === 'headlight') ? getCeilingMeshes() : getWallCellMeshes();
+  const targetHits = raycaster.intersectObjects(targetMeshes, false);
 
-  if (wallHits.length > 0 && wallHits[0].distance < 10) {
-    const hit = wallHits[0];
+  if (targetHits.length > 0 && targetHits[0].distance < 10) {
+    const hit = targetHits[0];
     const wn = getWorldNormal(hit);
     const mapping = worldToRoomWall(hit.point, wn);
 
     if (mapping) {
       pushSnapshot();
-      const idx = artworksData.findIndex(a => a.id === artData.id);
-      if (idx !== -1) {
-        artworksData[idx].room = mapping.room;
-        artworksData[idx].wall = mapping.wall;
-        artworksData[idx].position = mapping.position;
-        artworksData[idx].worldX = mapping.worldX;
-        artworksData[idx].worldZ = mapping.worldZ;
-        artworksData[idx].wallFace = mapping.wallFace;
-        artworksData[idx].wallY = mapping.wallY;
+      
+      if (isLight) {
+        const idx = gridDataLocal.lights.findIndex(l => l.id === lightData.id);
+        if (idx !== -1) {
+          gridDataLocal.lights[idx].worldX = mapping.worldX;
+          gridDataLocal.lights[idx].worldZ = mapping.worldZ;
+          gridDataLocal.lights[idx].wallY = mapping.wallY;
+          if (lightData.type === 'spotlight') gridDataLocal.lights[idx].wallFace = mapping.wallFace;
+        }
+      } else {
+        const idx = artworksData.findIndex(a => a.id === artData.id);
+        if (idx !== -1) {
+          artworksData[idx].room = mapping.room;
+          artworksData[idx].wall = mapping.wall;
+          artworksData[idx].position = mapping.position;
+          artworksData[idx].worldX = mapping.worldX;
+          artworksData[idx].worldZ = mapping.worldZ;
+          artworksData[idx].wallFace = mapping.wallFace;
+          artworksData[idx].wallY = mapping.wallY;
+        }
       }
     }
   }
@@ -427,20 +470,37 @@ async function placeStashedArtwork(hit) {
 
   pushSnapshot();
 
-  const idx = artworksData.findIndex(a => a.id === selectedStashItem.id);
-  if (idx !== -1) {
-    artworksData[idx].room = mapping.room;
-    artworksData[idx].wall = mapping.wall;
-    artworksData[idx].position = mapping.position;
-    artworksData[idx].worldX = mapping.worldX;
-    artworksData[idx].worldZ = mapping.worldZ;
-    artworksData[idx].wallFace = mapping.wallFace;
-    artworksData[idx].wallY = mapping.wallY;
+  if (selectedStashItem.isLight) {
+    gridDataLocal.lights = gridDataLocal.lights || [];
+    gridDataLocal.lights.push({
+      id: selectedStashItem.id,
+      type: selectedStashItem.type,
+      worldX: mapping.worldX,
+      worldY: mapping.wallY,
+      worldZ: mapping.worldZ,
+      wallFace: selectedStashItem.type === 'spotlight' ? mapping.wallFace : null
+    });
+  } else {
+    const idx = artworksData.findIndex(a => a.id === selectedStashItem.id);
+    if (idx !== -1) {
+      artworksData[idx].room = mapping.room;
+      artworksData[idx].wall = mapping.wall;
+      artworksData[idx].position = mapping.position;
+      artworksData[idx].worldX = mapping.worldX;
+      artworksData[idx].worldZ = mapping.worldZ;
+      artworksData[idx].wallFace = mapping.wallFace;
+      artworksData[idx].wallY = mapping.wallY;
+    }
   }
 
-  selectedStashItem = null;
-  document.querySelectorAll('.stash-item').forEach(el => el.classList.remove('selected'));
-  placementGhost.visible = false;
+  // Generate new ID for next light placement so we can place multiple without re-selecting
+  if (selectedStashItem.isLight) {
+    selectedStashItem.id = 'new_' + Date.now();
+  } else {
+    selectedStashItem = null;
+    document.querySelectorAll('.stash-item').forEach(el => el.classList.remove('selected'));
+    placementGhost.visible = false;
+  }
 
   await rebuildScene();
 }
@@ -457,6 +517,15 @@ function stashArtwork(artData, group) {
 
   scene.remove(group);
   if (_reloadStashFn) _reloadStashFn();
+}
+
+function stashLight(lightData) {
+  pushSnapshot();
+  const idx = gridDataLocal.lights.findIndex(l => l.id === lightData.id);
+  if (idx !== -1) {
+    gridDataLocal.lights.splice(idx, 1);
+  }
+  rebuildScene(); // Full rebuild to clean up lights correctly
 }
 
 // ─── Dig tool ───
