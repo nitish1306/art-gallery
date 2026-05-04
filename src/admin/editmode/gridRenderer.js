@@ -38,10 +38,7 @@ export async function buildGrid(parent, data, settings) {
   const wallMat = new THREE.MeshStandardMaterial({ map: wallTex });
   const floorMat = new THREE.MeshStandardMaterial({ map: floorTex });
   const ceilMat = new THREE.MeshStandardMaterial({ map: ceilTex });
-  const boundaryMat = new THREE.MeshStandardMaterial({
-    map: wallTex ? wallTex.clone() : null,
-    color: 0xcccccc
-  });
+
 
   wallMeshGroup = new THREE.Group();
   wallMeshGroup.name = 'grid-walls';
@@ -89,7 +86,7 @@ export async function buildGrid(parent, data, settings) {
       } else if (cell === 1 || cell === 2) {
         if (!isAdjacentToAir(grid, x, z, width, depth)) continue;
 
-        const mat = cell === 2 ? boundaryMat : wallMat;
+        const mat = wallMat;
         const mesh = new THREE.Mesh(wallGeo, mat);
         mesh.position.set(wx, wallHeight / 2, wz);
         mesh.castShadow = true;
