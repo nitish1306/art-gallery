@@ -78,6 +78,7 @@ async function initScene() {
   // Scene
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1a1a2e);
+  scene.fog = new THREE.FogExp2(0x1a1a2e, 0.04);
 
   // Camera
   camera = new THREE.PerspectiveCamera(
