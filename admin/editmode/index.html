@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Art Gallery - 3D Edit Mode</title>
+  <link rel="stylesheet" href="/src/gallery/gallery.css">
+  <link rel="stylesheet" href="/src/admin/editmode/editmode.css">
+</head>
+<body>
+  <!-- Full screen canvas container -->
+  <div id="canvas-container"></div>
+
+  <!-- Entry screen overlay -->
+  <div id="entry-overlay">
+    <div class="entry-content">
+      <h1 id="gallery-name">Edit Mode</h1>
+      <p>Click to enter Edit Mode</p>
+      <div class="controls-info">
+        <p><strong>WASD</strong>: Move &nbsp; <strong>Mouse</strong>: Look around</p>
+        <p><strong>1</strong>: Move/Place Artworks &nbsp; <strong>2</strong>: Dig Block &nbsp; <strong>3</strong>: Add Wall</p>
+        <p><strong>Left Click</strong>: Interact &nbsp; <strong>Right Click</strong>: Stash artwork</p>
+        <p><strong>Ctrl+Z</strong>: Undo &nbsp; <strong>Ctrl+Y</strong>: Redo &nbsp; <strong>Ctrl+S</strong>: Save</p>
+        <p><strong>ESC</strong>: Unlock cursor</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay" style="display: none;">
+    <div class="spinner"></div>
+    <p>Loading Gallery...</p>
+  </div>
+
+  <!-- Edit Mode Crosshair -->
+  <div id="crosshair"></div>
+
+  <!-- Hotbar / HUD Overlay -->
+  <div id="edit-hud" class="hidden">
+    <div class="hud-top-bar">
+      <div class="hud-left">
+        <a href="/admin" class="btn-exit">← Exit</a>
+        <button id="undo-btn" class="btn-action" disabled title="Undo (Ctrl+Z)">↩ Undo</button>
+        <button id="redo-btn" class="btn-action" disabled title="Redo (Ctrl+Y)">↪ Redo</button>
+        <button id="save-btn" class="btn-save" title="Save (Ctrl+S)">💾 Save</button>
+      </div>
+      <div id="current-tool-info">Move & Place Artworks</div>
+    </div>
+
+    <!-- Minimap -->
+    <div class="minimap-container">
+      <canvas id="minimap-canvas"></canvas>
+    </div>
+
+    <!-- The Stash / Inventory -->
+    <div class="stash-container">
+      <h3>The Stash <button id="add-new-artwork-btn" class="btn-small">+ Add</button></h3>
+      <div id="stash-grid"></div>
+    </div>
+
+    <!-- Tool Selection Hotbar -->
+    <div class="hotbar">
+      <div class="hotbar-slot active" data-tool="select">
+        <span class="slot-num">1</span>
+        <span class="slot-name">Move/Place</span>
+      </div>
+      <div class="hotbar-slot" data-tool="dig">
+        <span class="slot-num">2</span>
+        <span class="slot-name">Dig Block</span>
+      </div>
+      <div class="hotbar-slot" data-tool="add-wall">
+        <span class="slot-num">3</span>
+        <span class="slot-name">Add Wall</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div id="upload-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Upload New Artwork</h2>
+      <form id="upload-form">
+        <input type="file" id="artwork-file" accept="image/*" required>
+        <input type="text" id="artwork-title" placeholder="Title" required>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Upload & Stash</button>
+          <button type="button" id="cancel-upload-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="/src/admin/editmode/main.js"></script>
+</body>
+</html>

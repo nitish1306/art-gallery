@@ -35,6 +35,10 @@ if (isProduction) {
     if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
     // Serve admin SPA for /admin paths
     if (req.path.startsWith('/admin')) {
+      if (req.path.startsWith('/admin/editmode')) {
+        const editModeIndex = path.join(distPath, 'admin', 'editmode', 'index.html');
+        if (fs.existsSync(editModeIndex)) return res.sendFile(editModeIndex);
+      }
       const adminIndex = path.join(distPath, 'admin', 'index.html');
       if (fs.existsSync(adminIndex)) return res.sendFile(adminIndex);
     }

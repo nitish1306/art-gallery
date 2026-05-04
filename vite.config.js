@@ -11,6 +11,7 @@ export default defineConfig({
       input: {
         gallery: resolve(__dirname, 'index.html'),
         admin: resolve(__dirname, 'admin/index.html'),
+        editmode: resolve(__dirname, 'admin/editmode/index.html'),
       },
     },
     // Don't copy public/ into dist — Express serves assets from the volume

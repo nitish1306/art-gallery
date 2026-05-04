@@ -1,74 +1,18 @@
 {
   "rooms": [
     {
-      "id": "lobby",
-      "name": "Welcome",
-      "template": "medium",
-      "width": 12,
-      "depth": 10,
-      "height": 4,
-      "position": [
-        0,
-        0
-      ],
-      "connections": [
-        "room-oils"
-      ]
-    },
-    {
-      "id": "room-oils",
-      "name": "Oil Paintings",
+      "id": "grid",
+      "name": "",
       "template": "large",
-      "width": 14,
-      "depth": 10,
+      "width": 100,
+      "depth": 100,
       "height": 4,
-      "position": [
-        12,
-        0
-      ],
-      "connections": [
-        "lobby",
-        "room-watercolors"
-      ],
-      "partitions": [
-        {
-          "axis": "x",
-          "offset": 5,
-          "wallStart": 3,
-          "wallEnd": 11
-        }
-      ]
-    },
-    {
-      "id": "room-watercolors",
-      "name": "Watercolors",
-      "template": "medium",
-      "width": 12,
-      "depth": 10,
-      "height": 4,
-      "position": [
-        26,
-        0
-      ],
-      "connections": [
-        "room-oils"
-      ],
-      "partitions": [
-        {
-          "axis": "x",
-          "offset": 5,
-          "wallStart": 3,
-          "wallEnd": 9
-        }
-      ]
+      "position": [0, 0],
+      "connections": []
     }
   ],
   "spawnPoint": {
-    "room": "lobby",
-    "position": [
-      6,
-      0,
-      5
-    ]
+    "room": "grid",
+    "position": [50, 0, 45]
   }
 }

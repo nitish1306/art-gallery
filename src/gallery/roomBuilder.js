@@ -8,13 +8,24 @@ const WALL_THICKNESS = 0.2;
 // Store collision boundaries for later use
 export const collisionWalls = [];
 
+/** Clear all tracked room geometry data (for scene rebuild). */
+export function resetRoomData() {
+  wallMeshes.length = 0;
+  collisionWalls.length = 0;
+}
+
 /**
  * Build all rooms from gallery data and add them to the scene.
  */
-export async function buildRooms(scene) {
-  const res = await fetch('/api/gallery/rooms');
-  const data = await res.json();
-  const rooms = data.rooms;
+export async function buildRooms(scene, providedGalleryData) {
+  let rooms;
+  if (providedGalleryData) {
+    rooms = providedGalleryData.rooms;
+  } else {
+    const res = await fetch('/api/gallery/rooms');
+    const data = await res.json();
+    rooms = data.rooms;
+  }
 
   // Fetch settings for textures
   const settingsRes = await fetch('/api/gallery/settings');
@@ -137,11 +148,14 @@ function buildWall(scene, material, wallX, wallZ, wallLength, wallHeight, side, 
   }
 }
 
+export const wallMeshes = [];
+
 function createWallBox(w, h, thickness, material) {
   const geo = new THREE.BoxGeometry(w, h, thickness);
   const mesh = new THREE.Mesh(geo, material);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
+  wallMeshes.push(mesh);
   return mesh;
 }
 

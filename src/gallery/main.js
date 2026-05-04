@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { buildRooms } from './roomBuilder.js';
+import { buildGrid, getGridCollisionBoxes } from '../admin/editmode/gridRenderer.js';
 import { initControls, updateControls } from './controls.js';
 import { isMobileDevice, initMobileControls, updateMobileControls } from './mobileControls.js';
 import { detectQuality, applyQuality, recordFrame } from './quality.js';
@@ -86,8 +86,7 @@ async function initScene() {
     0.1,
     1000
   );
-  camera.position.set(6, 1.6, 5);
-  camera.lookAt(6, 1.6, 0);
+  // Spawn position set after grid loads (below)
 
   // Detect device quality tier
   const quality = detectQuality();
@@ -99,14 +98,28 @@ async function initScene() {
   applyQuality(renderer);
   container.appendChild(renderer.domElement);
 
-  // Build rooms from gallery data
-  await buildRooms(scene);
+  // Load grid data and build scene
+  const gridRes = await fetch('/api/gallery/grid');
+  const gridData = await gridRes.json();
+  await buildGrid(scene, gridData, settings);
+
+  // Set spawn position from grid data
+  const spawn = gridData.spawn || [50, 45];
+  const cs = gridData.cellSize || 1;
+  camera.position.set(spawn[0] * cs + cs / 2, 1.6, spawn[1] * cs + cs / 2);
 
   // Lighting
   initLighting(scene, settings);
 
-  // Load and display artworks
-  await loadArtworks(scene, settings);
+  // Load artworks
+  const galData = {
+    rooms: [{
+      id: 'grid', name: '', width: gridData.width * cs,
+      depth: gridData.depth * cs, height: gridData.wallHeight,
+      position: [0, 0], connections: []
+    }]
+  };
+  await loadArtworks(scene, settings, undefined, galData);
 
   // Initialize controls
   initControls(camera, renderer.domElement);
@@ -124,8 +137,71 @@ async function initScene() {
   // Handle resize
   window.addEventListener('resize', onResize);
 
+  // Store grid data for collision
+  galleryGridData = gridData;
+
   // Start render loop
   animate();
+}
+
+let galleryGridData = null;
+const PLAYER_BUFFER = 0.35;
+
+function applyGridCollision(cam) {
+  if (!galleryGridData) return;
+  const cs = galleryGridData.cellSize;
+  let px = cam.position.x;
+  let pz = cam.position.z;
+  const gx = Math.floor(px / cs);
+  const gz = Math.floor(pz / cs);
+
+  if (gx >= 0 && gx < galleryGridData.width && gz >= 0 && gz < galleryGridData.depth) {
+    if (galleryGridData.grid[gz][gx] !== 0) {
+      const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+      let best = null, bestDist = Infinity;
+      for (const [dx, dz] of dirs) {
+        const nx = gx + dx, nz = gz + dz;
+        if (nx >= 0 && nx < galleryGridData.width && nz >= 0 && nz < galleryGridData.depth) {
+          if (galleryGridData.grid[nz][nx] === 0) {
+            const cx = nx * cs + cs / 2, cz = nz * cs + cs / 2;
+            const d = Math.sqrt((px-cx)**2 + (pz-cz)**2);
+            if (d < bestDist) { bestDist = d; best = {x:cx, z:cz}; }
+          }
+        }
+      }
+      if (best) { cam.position.x = best.x; cam.position.z = best.z; }
+      return;
+    }
+  }
+
+  // Buffer: push player away from adjacent wall cells
+  for (let dz = -1; dz <= 1; dz++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      if (dx === 0 && dz === 0) continue;
+      const nx = gx + dx, nz = gz + dz;
+      if (nx < 0 || nx >= galleryGridData.width || nz < 0 || nz >= galleryGridData.depth) continue;
+      if (galleryGridData.grid[nz][nx] === 0) continue;
+
+      const wallMinX = nx * cs, wallMaxX = nx * cs + cs;
+      const wallMinZ = nz * cs, wallMaxZ = nz * cs + cs;
+      const closestX = Math.max(wallMinX, Math.min(px, wallMaxX));
+      const closestZ = Math.max(wallMinZ, Math.min(pz, wallMaxZ));
+      const distX = px - closestX, distZ = pz - closestZ;
+      const dist = Math.sqrt(distX * distX + distZ * distZ);
+
+      if (dist < PLAYER_BUFFER && dist > 0.001) {
+        cam.position.x += (distX / dist) * (PLAYER_BUFFER - dist);
+        cam.position.z += (distZ / dist) * (PLAYER_BUFFER - dist);
+        px = cam.position.x;
+        pz = cam.position.z;
+      } else if (dist < 0.001) {
+        cam.position.x = gx * cs + cs / 2;
+        cam.position.z = gz * cs + cs / 2;
+        px = cam.position.x;
+        pz = cam.position.z;
+      }
+    }
+  }
 }
 
 function onResize() {
@@ -138,6 +214,7 @@ function animate(timestamp) {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
   updateControls(delta);
+  applyGridCollision(camera);
   updateMobileControls(delta);
   updateInteraction();
   renderer.render(scene, camera);

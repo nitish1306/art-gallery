@@ -30,4 +30,21 @@ router.get('/settings', (req, res) => {
   res.json(safeReadJSON('settings.json', {}));
 });
 
+// GET /api/gallery/grid — returns grid.json
+router.get('/grid', (req, res) => {
+  res.json(safeReadJSON('grid.json', { width: 100, depth: 100, cellSize: 1, wallHeight: 4, grid: [], spawn: [50, 22] }));
+});
+
+// PUT /api/gallery/grid — save grid.json
+router.put('/grid', express.json({ limit: '5mb' }), (req, res) => {
+  try {
+    const data = req.body;
+    fs.writeFileSync(path.join(dataDir, 'grid.json'), JSON.stringify(data), 'utf-8');
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[Gallery] Error writing grid.json:', err.message);
+    res.status(500).json({ error: 'Failed to save grid' });
+  }
+});
+
 module.exports = router;

@@ -1,0 +1,411 @@
+/* Edit Mode Styles */
+
+/* ─── Crosshair ─── */
+#crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 100;
+}
+
+#crosshair::before,
+#crosshair::after {
+  content: "";
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+#crosshair::before {
+  top: 9px;
+  left: 0;
+  width: 20px;
+  height: 2px;
+}
+
+#crosshair::after {
+  top: 0;
+  left: 9px;
+  width: 2px;
+  height: 20px;
+}
+
+/* ─── HUD Layout ─── */
+#edit-hud {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#edit-hud.hidden {
+  display: none;
+}
+
+/* ─── Top Bar ─── */
+.hud-top-bar {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: auto;
+  background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+}
+
+.hud-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-exit {
+  background: rgba(200, 50, 50, 0.85);
+  color: white;
+  padding: 8px 14px;
+  text-decoration: none;
+  border-radius: 6px;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-action {
+  background: rgba(60, 60, 70, 0.85);
+  color: #ccc;
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-action:hover:not(:disabled) {
+  background: rgba(80, 80, 90, 0.9);
+  color: #fff;
+}
+
+.btn-action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn-save {
+  background: rgba(40, 120, 60, 0.85);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-save:hover {
+  background: rgba(50, 150, 70, 0.95);
+  transform: scale(1.02);
+}
+
+.btn-save.has-changes {
+  background: rgba(200, 150, 20, 0.9);
+  animation: save-pulse 2s ease-in-out infinite;
+}
+
+@keyframes save-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 200, 50, 0.4); }
+  50% { box-shadow: 0 0 12px 4px rgba(255, 200, 50, 0.3); }
+}
+
+#current-tool-info {
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: sans-serif;
+  font-size: 13px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ─── Minimap ─── */
+.minimap-container {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  width: 200px;
+  height: 200px;
+  border-radius: 10px;
+  overflow: hidden;
+  pointer-events: auto;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  background: #0a0a12;
+}
+
+#minimap-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── Stash (Inventory) ─── */
+.stash-container {
+  pointer-events: auto;
+  background: rgba(20, 20, 25, 0.92);
+  color: white;
+  width: 260px;
+  max-height: calc(100vh - 320px);
+  position: absolute;
+  right: 16px;
+  top: 280px;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.stash-container h3 {
+  margin: 0 0 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-small {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.btn-small:hover {
+  background: #5cc460;
+}
+
+#stash-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-content: start;
+}
+
+.stash-item {
+  background: #2a2a30;
+  border-radius: 6px;
+  padding: 5px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.stash-item:hover {
+  background: #3a3a42;
+  border-color: rgba(255,255,255,0.15);
+}
+
+.stash-item.selected {
+  border-color: #4caf50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+
+.stash-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.stash-item p {
+  margin: 5px 0 0 0;
+  font-size: 11px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #ccc;
+}
+
+/* ─── Hotbar ─── */
+.hotbar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  pointer-events: auto;
+  background: linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+}
+
+.hotbar-slot {
+  width: 80px;
+  height: 70px;
+  background: rgba(20, 20, 25, 0.8);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-family: sans-serif;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hotbar-slot:hover {
+  border-color: rgba(255,255,255,0.4);
+  color: #ddd;
+}
+
+.hotbar-slot.active {
+  border-color: white;
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(255,255,255,0.2);
+  background: rgba(40, 40, 50, 0.9);
+}
+
+.slot-num {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 11px;
+  color: #888;
+  font-weight: bold;
+}
+
+.slot-name {
+  font-size: 12px;
+  text-align: center;
+  padding: 0 5px;
+}
+
+/* ─── Modal ─── */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  pointer-events: auto;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #1e1e24;
+  color: #eee;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 400px;
+  font-family: sans-serif;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  font-weight: 500;
+}
+
+.modal-content input[type="file"],
+.modal-content input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: #2a2a30;
+  color: #eee;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-actions button {
+  padding: 10px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background: #4caf50;
+  color: white;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background: #5cc460;
+}
+
+#cancel-upload-btn {
+  background: #444;
+  color: #ccc;
+}
+
+/* ─── Spinner ─── */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: #4fc3f7;
+  border-radius: 50%;
+  margin-bottom: 14px;
+  animation: edit-spin 0.8s linear infinite;
+}
+
+@keyframes edit-spin { to { transform: rotate(360deg); } }
+
+/* ─── Entry overlay tweaks ─── */
+.controls-info {
+  margin-top: 1.5rem;
+  color: #888;
+  font-size: 13px;
+  line-height: 2;
+}
+
+.controls-info strong {
+  color: #ccc;
+  background: rgba(255,255,255,0.08);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}

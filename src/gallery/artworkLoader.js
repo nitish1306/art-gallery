@@ -4,16 +4,29 @@ import { createArtworkSpotlight } from './lighting.js';
 const artworkMeshes = [];
 let roomsData = null;
 
+/** Clear artwork meshes array (for scene rebuild). */
+export function clearArtworkMeshes() {
+  artworkMeshes.length = 0;
+}
+
 /**
  * Load and place all artworks on walls.
+ * Accepts optional pre-loaded data for edit mode rebuilds.
  */
-export async function loadArtworks(scene, settings) {
-  const [artRes, roomRes] = await Promise.all([
-    fetch('/api/gallery/artworks'),
-    fetch('/api/gallery/rooms'),
-  ]);
-  const artworks = await artRes.json();
-  roomsData = await roomRes.json();
+export async function loadArtworks(scene, settings, providedArtworks, providedGalleryData) {
+  let artworks;
+  if (providedArtworks) {
+    artworks = providedArtworks;
+  } else {
+    const artRes = await fetch('/api/gallery/artworks');
+    artworks = await artRes.json();
+  }
+  if (providedGalleryData) {
+    roomsData = providedGalleryData;
+  } else {
+    const roomRes = await fetch('/api/gallery/rooms');
+    roomsData = await roomRes.json();
+  }
 
   if (!artworks.length) return;
 
@@ -24,6 +37,7 @@ export async function loadArtworks(scene, settings) {
   }
 
   for (const art of artworks) {
+    if (!art.room || art.room === '') continue; // Skip stashed
     const room = roomMap[art.room];
     if (!room) continue;
 
@@ -92,8 +106,8 @@ async function placeArtwork(scene, loader, art, room, settings) {
   // Placard — canvas texture with title/date/medium
   const placardMesh = createPlacard(art);
 
-  // Calculate wall position
-  const pos = getWallPosition(room, art.wall, art.position, artH);
+  // Calculate wall position (supports world coords and room-based)
+  const pos = getArtworkPlacement(art, room, artH);
 
   // Position everything
   const group = new THREE.Group();
@@ -112,6 +126,31 @@ async function placeArtwork(scene, loader, art, room, settings) {
 
   // Add spotlight
   createArtworkSpotlight(scene, pos.position, settings);
+}
+
+/**
+ * Get wall position — supports world coordinates (grid) or room-based placement.
+ */
+function getArtworkPlacement(art, room, artHeight) {
+  // If artwork has world coordinates from the grid system, use those directly
+  if (art.worldX != null && art.worldZ != null && art.wallFace) {
+    const eyeH = art.wallY || 1.5;
+    const face = art.wallFace;
+    let rotation = 0;
+    switch (face) {
+      case 'north': rotation = Math.PI; break;
+      case 'south': rotation = 0; break;
+      case 'east': rotation = -Math.PI / 2; break;
+      case 'west': rotation = Math.PI / 2; break;
+    }
+    return {
+      position: new THREE.Vector3(art.worldX, eyeH, art.worldZ),
+      rotation
+    };
+  }
+
+  // Fallback to room-based placement
+  return getWallPosition(room, art.wall, art.position, artHeight);
 }
 
 /**
