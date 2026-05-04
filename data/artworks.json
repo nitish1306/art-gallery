@@ -8,12 +8,12 @@
     "image": "assets/artworks/sunset-valley.png",
     "thumbnail": "assets/artworks/sunset-valley.png",
     "room": "grid",
-    "wall": "north",
-    "position": 0.5,
-    "worldX": 50.5,
-    "worldZ": 44.95,
-    "wallFace": "south",
-    "wallY": 1.5
+    "wall": "east",
+    "position": 0.45,
+    "worldX": 45.02,
+    "worldZ": 47.911696595392506,
+    "wallFace": "east",
+    "wallY": 1.7035643273294179
   },
   {
     "id": "artwork-2",
@@ -24,12 +24,12 @@
     "image": "assets/artworks/abstract-blue.png",
     "thumbnail": "assets/artworks/abstract-blue.png",
     "room": "grid",
-    "wall": "north",
-    "position": 0.6152442757248766,
-    "worldX": 50.5,
-    "worldZ": 55.05,
-    "wallFace": "north",
-    "wallY": 1.5
+    "wall": "west",
+    "position": 0.57,
+    "worldX": 56.98,
+    "worldZ": 53.677236028212654,
+    "wallFace": "west",
+    "wallY": 1.7282530043126323
   },
   {
     "id": "artwork-3",
@@ -40,11 +40,11 @@
     "image": "assets/artworks/garden.png",
     "thumbnail": "assets/artworks/garden.png",
     "room": "grid",
-    "wall": "west",
-    "position": 0.5,
-    "worldX": 65.5,
-    "worldZ": 44.95,
-    "wallFace": "south",
-    "wallY": 1.5
+    "wall": "north",
+    "position": 0.6476630341851525,
+    "worldX": 64.76630341851525,
+    "worldZ": 48.98,
+    "wallFace": "north",
+    "wallY": 1.6856232126473356
   }
 ]

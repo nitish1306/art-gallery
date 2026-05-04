@@ -75,9 +75,9 @@ router.post('/artworks/upload', upload.single('image'), async (req, res) => {
 // POST /api/admin/artworks — save artwork (process image + add to artworks.json)
 router.post('/artworks', express.json(), async (req, res) => {
   try {
-    const { tempFile, title, date, medium, description, room, wall, position } = req.body;
-    if (!tempFile || !title || !room || !wall) {
-      return res.status(400).json({ error: 'Missing required fields: tempFile, title, room, wall' });
+    const { tempFile, title, date, medium, description, room, wall, position, worldX, worldZ, wallFace, wallY } = req.body;
+    if (!tempFile || !title) {
+      return res.status(400).json({ error: 'Missing required fields: tempFile, title' });
     }
 
     const inputPath = path.join(uploadsDir, path.basename(tempFile));
@@ -103,9 +103,13 @@ router.post('/artworks', express.json(), async (req, res) => {
       description: description || '',
       image: result.processedPath,
       thumbnail: result.thumbnailPath,
-      room,
-      wall,
+      room: room || '',
+      wall: wall || '',
       position: parseFloat(position) || 0.5,
+      worldX: worldX !== undefined ? parseFloat(worldX) : null,
+      worldZ: worldZ !== undefined ? parseFloat(worldZ) : null,
+      wallFace: wallFace || null,
+      wallY: wallY !== undefined ? parseFloat(wallY) : null
     };
 
     // Save to artworks.json
@@ -126,7 +130,7 @@ router.put('/artworks/:id', express.json(), (req, res) => {
   const idx = artworks.findIndex(a => a.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Artwork not found' });
 
-  const allowed = ['title', 'date', 'medium', 'description', 'room', 'wall', 'position'];
+  const allowed = ['title', 'date', 'medium', 'description', 'room', 'wall', 'position', 'worldX', 'worldZ', 'wallFace', 'wallY'];
   for (const key of allowed) {
     if (req.body[key] !== undefined) {
       artworks[idx][key] = key === 'position' ? parseFloat(req.body[key]) : req.body[key];

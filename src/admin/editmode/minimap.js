@@ -8,6 +8,7 @@ import * as THREE from 'three';
 
 let canvas, ctx;
 let gridData = null;
+let artworksData = null;
 let camera = null;
 
 const MINIMAP_SIZE = 200;
@@ -24,6 +25,10 @@ export function initMinimap(cam) {
 
 export function setMinimapGrid(data) {
   gridData = data;
+}
+
+export function setMinimapArtworks(data) {
+  artworksData = data;
 }
 
 export function updateMinimap() {
@@ -99,6 +104,24 @@ export function updateMinimap() {
     ctx.moveTo(offsetX, pz);
     ctx.lineTo(offsetX + rangeX * scale, pz);
     ctx.stroke();
+  }
+
+  // Draw artwork dots
+  if (artworksData) {
+    ctx.fillStyle = '#ffd54f';
+    for (const art of artworksData) {
+      // Must have valid world coordinates
+      if (art.worldX != null && art.worldZ != null) {
+        // Must be currently placed (has room)
+        if (art.room && art.room !== '') {
+          const px = offsetX + (art.worldX / cellSize - minX) * scale;
+          const pz = offsetZ + (art.worldZ / cellSize - minZ) * scale;
+          ctx.beginPath();
+          ctx.arc(px, pz, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
   }
 
   // Draw player position

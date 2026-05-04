@@ -3,7 +3,7 @@ import { buildGrid, clearGrid, getWallCellMeshes, getGridData, recalcBoundary } 
 import { getArtworkMeshes, clearArtworkMeshes } from '../../gallery/artworkLoader.js';
 import { loadArtworks } from '../../gallery/artworkLoader.js';
 import { initLighting } from '../../gallery/lighting.js';
-import { setMinimapGrid } from './minimap.js';
+import { setMinimapGrid, setMinimapArtworks } from './minimap.js';
 
 let camera, scene, renderer, settings;
 const raycaster = new THREE.Raycaster();
@@ -161,7 +161,11 @@ export async function saveAll() {
         body: JSON.stringify({
           room: art.room || '',
           wall: art.wall || '',
-          position: art.position || 0
+          position: art.position || 0,
+          worldX: art.worldX,
+          worldZ: art.worldZ,
+          wallFace: art.wallFace,
+          wallY: art.wallY
         })
       });
     }
@@ -202,6 +206,7 @@ export async function rebuildScene() {
 
     initGhost();
     setMinimapGrid(gridDataLocal);
+    setMinimapArtworks(artworksData);
     if (_reloadStashFn) _reloadStashFn();
   } finally {
     isRebuilding = false;
@@ -305,7 +310,7 @@ export function updateEditInteraction() {
         const hit = wallHits[0];
         const wn = getWorldNormal(hit);
         draggedGroup.position.copy(hit.point);
-        draggedGroup.position.addScaledVector(wn, 0.06);
+        draggedGroup.position.addScaledVector(wn, 0.02);
         draggedGroup.rotation.y = Math.atan2(wn.x, wn.z);
       }
       if (placementGhost) placementGhost.visible = false;
@@ -314,7 +319,7 @@ export function updateEditInteraction() {
         const hit = wallHits[0];
         const wn = getWorldNormal(hit);
         placementGhost.position.copy(hit.point);
-        placementGhost.position.addScaledVector(wn, 0.05);
+        placementGhost.position.addScaledVector(wn, 0.02);
         placementGhost.rotation.y = Math.atan2(wn.x, wn.z);
         placementGhost.visible = true;
       } else {
@@ -346,24 +351,38 @@ function isInBounds(gx, gz) {
 // ─── Artwork actions ───
 
 function worldToRoomWall(worldPos, worldNormal) {
-  // For grid system: determine wall face and grid cell
-  const cs = gridDataLocal.cellSize;
-  let wallSide;
+  // Determine which face of the grid cell we hit
+  let face = 'north';
   if (Math.abs(worldNormal.z) > Math.abs(worldNormal.x)) {
-    wallSide = worldNormal.z > 0 ? 'north' : 'south';
+    // Normal points +Z (South) or -Z (North)
+    face = worldNormal.z > 0 ? 'south' : 'north';
   } else {
-    wallSide = worldNormal.x > 0 ? 'west' : 'east';
+    // Normal points +X (East) or -X (West)
+    face = worldNormal.x > 0 ? 'east' : 'west';
   }
 
-  // The wall cell the artwork is attached to
+  // Very small elevation (0.02m) on top of the wall surface
+  const px = worldPos.x + worldNormal.x * 0.02;
+  const pz = worldPos.z + worldNormal.z * 0.02;
+
+  const cs = gridDataLocal.cellSize;
   const gx = Math.floor(worldPos.x / cs);
   const gz = Math.floor(worldPos.z / cs);
 
-  // Position along the wall (normalized 0-1 within the cell)
-  // For grid, use the x/z position as an absolute value in the 'grid' room
+  // Position is just a fallback for the old system
   const position = worldPos.x / (gridDataLocal.width * cs);
 
-  return { room: 'grid', wall: wallSide, position, gridX: gx, gridZ: gz };
+  return {
+    room: 'grid',
+    wall: face,
+    position,
+    gridX: gx,
+    gridZ: gz,
+    worldX: px,
+    worldZ: pz,
+    wallFace: face,
+    wallY: worldPos.y
+  };
 }
 
 function dropArtwork() {
@@ -388,6 +407,10 @@ function dropArtwork() {
         artworksData[idx].room = mapping.room;
         artworksData[idx].wall = mapping.wall;
         artworksData[idx].position = mapping.position;
+        artworksData[idx].worldX = mapping.worldX;
+        artworksData[idx].worldZ = mapping.worldZ;
+        artworksData[idx].wallFace = mapping.wallFace;
+        artworksData[idx].wallY = mapping.wallY;
       }
     }
   }
@@ -409,6 +432,10 @@ async function placeStashedArtwork(hit) {
     artworksData[idx].room = mapping.room;
     artworksData[idx].wall = mapping.wall;
     artworksData[idx].position = mapping.position;
+    artworksData[idx].worldX = mapping.worldX;
+    artworksData[idx].worldZ = mapping.worldZ;
+    artworksData[idx].wallFace = mapping.wallFace;
+    artworksData[idx].wallY = mapping.wallY;
   }
 
   selectedStashItem = null;

@@ -18,7 +18,7 @@ export async function loadArtworks(scene, settings, providedArtworks, providedGa
   if (providedArtworks) {
     artworks = providedArtworks;
   } else {
-    const artRes = await fetch('/api/gallery/artworks');
+    const artRes = await fetch('/api/gallery/artworks?t=' + Date.now());
     artworks = await artRes.json();
   }
   if (providedGalleryData) {
@@ -140,8 +140,8 @@ function getArtworkPlacement(art, room, artHeight) {
     switch (face) {
       case 'north': rotation = Math.PI; break;
       case 'south': rotation = 0; break;
-      case 'east': rotation = -Math.PI / 2; break;
-      case 'west': rotation = Math.PI / 2; break;
+      case 'east': rotation = Math.PI / 2; break;
+      case 'west': rotation = -Math.PI / 2; break;
     }
     return {
       position: new THREE.Vector3(art.worldX, eyeH, art.worldZ),
@@ -193,7 +193,7 @@ function getWallPosition(room, wall, normalizedPos, artHeight) {
   const w = room.width;
   const d = room.depth;
   const eyeH = 1.5;
-  const offset = 0.05; // offset from outer walls to avoid z-fighting
+  const offset = 0.02; // offset from outer walls to avoid z-fighting
   const partOffset = 0.15; // offset from partition walls (half thickness + gap)
 
   const t = normalizedPos ?? 0.5;

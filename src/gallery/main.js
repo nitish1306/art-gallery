@@ -15,7 +15,7 @@ let settings = null;
 
 async function init() {
   // Fetch settings
-  const res = await fetch('/api/gallery/settings');
+  const res = await fetch('/api/gallery/settings?t=' + Date.now());
   settings = await res.json();
 
   // Show gallery name on entry screen
@@ -99,7 +99,7 @@ async function initScene() {
   container.appendChild(renderer.domElement);
 
   // Load grid data and build scene
-  const gridRes = await fetch('/api/gallery/grid');
+  const gridRes = await fetch('/api/gallery/grid?t=' + Date.now());
   const gridData = await gridRes.json();
   await buildGrid(scene, gridData, settings);
 

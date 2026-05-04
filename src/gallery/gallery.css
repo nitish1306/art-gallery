@@ -108,7 +108,7 @@ html, body {
   margin-bottom: 6px;
 }
 
-#minimap {
+#minimap-canvas {
   display: block;
   margin-left: auto;
   border-radius: 6px;

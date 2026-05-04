@@ -4,7 +4,7 @@ import { applyQuality, recordFrame } from '../../gallery/quality.js';
 import { initLighting } from '../../gallery/lighting.js';
 import { loadArtworks } from '../../gallery/artworkLoader.js';
 import { buildGrid, getGridCollisionBoxes } from './gridRenderer.js';
-import { initMinimap, setMinimapGrid, updateMinimap } from './minimap.js';
+import { initMinimap, setMinimapGrid, setMinimapArtworks, updateMinimap } from './minimap.js';
 import {
   initEditInteraction, updateEditInteraction,
   setTool, setSelectedStashItem,
@@ -102,6 +102,7 @@ async function initScene() {
   // Init minimap
   initMinimap(camera);
   setMinimapGrid(gridData);
+  setMinimapArtworks(getArtworksData());
 
   setupUI();
   refreshStashUI();
