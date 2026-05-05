@@ -228,14 +228,17 @@ function openAdjustPanel(artifact) {
   const panel = document.getElementById('light-adjust-panel');
   const intSlider = document.getElementById('adj-intensity');
   const angSlider = document.getElementById('adj-angle');
+  const rotSlider = document.getElementById('adj-rotation');
   const colorPicker = document.getElementById('adj-color');
 
   intSlider.value = ld.intensity !== undefined ? ld.intensity : 2.0;
   angSlider.value = ld.angle !== undefined ? ld.angle : 45;
+  rotSlider.value = ld.rotation !== undefined ? ld.rotation : 0;
   colorPicker.value = ld.color || '#ffeedd';
 
   document.getElementById('adj-intensity-val').textContent = parseFloat(intSlider.value).toFixed(1);
   document.getElementById('adj-angle-val').textContent = angSlider.value + '°';
+  document.getElementById('adj-rotation-val').textContent = rotSlider.value + '°';
 
   closeEditMenu();
   panel.classList.remove('hidden');
@@ -286,17 +289,19 @@ const PLAYER_BUFFER = 0.35;
 function applyGridCollision(cam) {
   const gridData = getGridDataLocal();
   if (!gridData) return;
-  const cs = gridData.cellSize;
+  const cs = gridData.cellSize || 1;
+  const width = gridData.width || 100;
+  const depth = gridData.depth || 100;
   let px = cam.position.x, pz = cam.position.z;
   const gx = Math.floor(px / cs), gz = Math.floor(pz / cs);
 
-  if (gx >= 0 && gx < gridData.width && gz >= 0 && gz < gridData.depth) {
+  if (gx >= 0 && gx < width && gz >= 0 && gz < depth) {
     if (gridData.grid[gz][gx] !== 0) {
       const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
       let best = null, bestDist = Infinity;
       for (const [dx, dz] of dirs) {
         const nx = gx + dx, nz = gz + dz;
-        if (nx >= 0 && nx < gridData.width && nz >= 0 && nz < gridData.depth && gridData.grid[nz][nx] === 0) {
+        if (nx >= 0 && nx < width && nz >= 0 && nz < depth && gridData.grid[nz][nx] === 0) {
           const cx = nx * cs + cs / 2, cz = nz * cs + cs / 2;
           const d = Math.sqrt((px-cx)**2 + (pz-cz)**2);
           if (d < bestDist) { bestDist = d; best = {x:cx, z:cz}; }
@@ -310,7 +315,7 @@ function applyGridCollision(cam) {
     for (let dx = -1; dx <= 1; dx++) {
       if (dx === 0 && dz === 0) continue;
       const nx = gx + dx, nz = gz + dz;
-      if (nx < 0 || nx >= gridData.width || nz < 0 || nz >= gridData.depth) continue;
+      if (nx < 0 || nx >= width || nz < 0 || nz >= depth) continue;
       if (gridData.grid[nz][nx] === 0) continue;
       const wallMinX = nx * cs, wallMaxX = nx * cs + cs;
       const wallMinZ = nz * cs, wallMaxZ = nz * cs + cs;
@@ -433,6 +438,11 @@ function setupUI() {
   document.getElementById('adj-angle').addEventListener('input', (e) => {
     document.getElementById('adj-angle-val').textContent = e.target.value + '°';
     if (_adjustLightId) updateLightProperty(_adjustLightId, 'angle', e.target.value);
+  });
+
+  document.getElementById('adj-rotation').addEventListener('input', (e) => {
+    document.getElementById('adj-rotation-val').textContent = e.target.value + '°';
+    if (_adjustLightId) updateLightProperty(_adjustLightId, 'rotation', e.target.value);
   });
 
   document.getElementById('adj-color').addEventListener('input', (e) => {

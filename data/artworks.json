@@ -24,12 +24,12 @@
     "image": "assets/artworks/abstract-blue.png",
     "thumbnail": "assets/artworks/abstract-blue.png",
     "room": "grid",
-    "wall": "west",
-    "position": 0.57,
-    "worldX": 56.98,
-    "worldZ": 53.677236028212654,
-    "wallFace": "west",
-    "wallY": 1.7282530043126323
+    "wall": "north",
+    "position": 0.5566568997144773,
+    "worldX": 55.665689971447726,
+    "worldZ": 54.98,
+    "wallFace": "north",
+    "wallY": 1.8264748112026707
   },
   {
     "id": "artwork-3",

@@ -34,7 +34,10 @@ export function setMinimapArtworks(data) {
 export function updateMinimap() {
   if (!ctx || !gridData || !camera) return;
 
-  const { grid, width, depth, cellSize } = gridData;
+  const width = gridData.width || 100;
+  const depth = gridData.depth || 100;
+  const cellSize = gridData.cellSize || 1;
+  const grid = gridData.grid;
 
   // Find active bounds (include air, wall, boundary — skip void=3)
   let minX = width, maxX = 0, minZ = depth, maxZ = 0;

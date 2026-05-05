@@ -45,7 +45,6 @@
   z-index: 50;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 #edit-hud.hidden {
@@ -259,6 +258,7 @@
   padding: 16px;
   pointer-events: auto;
   background: linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+  margin-top: auto;
 }
 
 .hotbar-slot {

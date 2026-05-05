@@ -72,11 +72,22 @@ export function buildGridLights(scene, gridData) {
       const spot = new THREE.SpotLight(color, intensity, 15, angleRad, 0.5, 1.5);
       spot.position.set(light.worldX, light.worldY, light.worldZ);
 
-      const targetPos = new THREE.Vector3(light.worldX, Math.max(0, light.worldY - 1), light.worldZ);
-      if (light.wallFace === 'north') targetPos.z += 2;
-      else if (light.wallFace === 'south') targetPos.z -= 2;
-      else if (light.wallFace === 'east') targetPos.x -= 2;
-      else if (light.wallFace === 'west') targetPos.x += 2;
+      const rotRad = (light.rotation || 0) * Math.PI / 180;
+      let nx = 0, nz = 0;
+      if (light.wallFace === 'north') nz = -1;
+      else if (light.wallFace === 'south') nz = 1;
+      else if (light.wallFace === 'east') nx = 1;
+      else if (light.wallFace === 'west') nx = -1;
+
+      // Rotate the normal around Y-axis by rotRad
+      const rnx = nx * Math.cos(rotRad) - nz * Math.sin(rotRad);
+      const rnz = nx * Math.sin(rotRad) + nz * Math.cos(rotRad);
+
+      const targetPos = new THREE.Vector3(
+        light.worldX + rnx * 2,
+        Math.max(0, light.worldY - 1),
+        light.worldZ + rnz * 2
+      );
 
       spot.target.position.copy(targetPos);
       scene.add(spot);

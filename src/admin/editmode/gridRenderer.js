@@ -28,7 +28,11 @@ export function getGridCollisionBoxes() { return gridCollisionBoxes; }
  */
 export async function buildGrid(parent, data, settings) {
   gridData = data;
-  const { width, depth, cellSize, wallHeight, grid } = data;
+  const width = data.width || 100;
+  const depth = data.depth || 100;
+  const cellSize = data.cellSize || 1;
+  const wallHeight = data.wallHeight || 4;
+  const grid = data.grid;
   const theme = (settings && settings.theme) || {};
 
   // Load textures

@@ -195,6 +195,25 @@ export function updateLightProperty(id, prop, value) {
       entry.fixtureMesh.material.emissive.setStyle(value);
     }
     lightData.color = value;
+  } else if (prop === 'rotation') {
+    lightData.rotation = parseFloat(value);
+    if (entry && lightData.type !== 'headlight') {
+      const rotRad = lightData.rotation * Math.PI / 180;
+      let nx = 0, nz = 0;
+      if (lightData.wallFace === 'north') nz = -1;
+      else if (lightData.wallFace === 'south') nz = 1;
+      else if (lightData.wallFace === 'east') nx = 1;
+      else if (lightData.wallFace === 'west') nx = -1;
+      
+      const rnx = nx * Math.cos(rotRad) - nz * Math.sin(rotRad);
+      const rnz = nx * Math.sin(rotRad) + nz * Math.cos(rotRad);
+      
+      entry.spotLight.target.position.set(
+        lightData.worldX + rnx * 2,
+        Math.max(0, lightData.worldY - 1),
+        lightData.worldZ + rnz * 2
+      );
+    }
   }
   isDirty = true;
   if (_onDirtyChange) _onDirtyChange(true);
@@ -358,9 +377,9 @@ function gridToGalleryData(gd) {
     rooms: [{
       id: 'grid',
       name: 'Grid Gallery',
-      width: gd.width * gd.cellSize,
-      depth: gd.depth * gd.cellSize,
-      height: gd.wallHeight,
+      width: gd.width * (gd.cellSize || 1),
+      depth: gd.depth * (gd.cellSize || 1),
+      height: gd.wallHeight || 4,
       position: [0, 0],
       connections: []
     }]
@@ -542,7 +561,7 @@ function _detectHover() {
 
 function worldToGrid(worldPos) {
   if (!gridDataLocal) return null;
-  const cs = gridDataLocal.cellSize;
+  const cs = gridDataLocal.cellSize || 1;
   return {
     x: Math.floor(worldPos.x / cs),
     z: Math.floor(worldPos.z / cs)
@@ -570,12 +589,12 @@ function worldToRoomWall(worldPos, worldNormal) {
   const px = worldPos.x + worldNormal.x * 0.02;
   const pz = worldPos.z + worldNormal.z * 0.02;
 
-  const cs = gridDataLocal.cellSize;
+  const cs = gridDataLocal.cellSize || 1;
   const gx = Math.floor(worldPos.x / cs);
   const gz = Math.floor(worldPos.z / cs);
 
   // Position is just a fallback for the old system
-  const position = worldPos.x / (gridDataLocal.width * cs);
+  const position = worldPos.x / ((gridDataLocal.width || 100) * cs);
 
   return {
     room: 'grid',
@@ -609,7 +628,7 @@ function dropArtwork() {
         const idx = (gridDataLocal.lights || []).findIndex(l => l.id === ld.id);
         if (idx !== -1) {
           gridDataLocal.lights[idx].worldX = targetHits[0].point.x;
-          gridDataLocal.lights[idx].worldY = isHead ? gridDataLocal.wallHeight : mapping.wallY;
+          gridDataLocal.lights[idx].worldY = isHead ? (gridDataLocal.wallHeight || 4) : mapping.wallY;
           gridDataLocal.lights[idx].worldZ = targetHits[0].point.z;
           if (!isHead) gridDataLocal.lights[idx].wallFace = mapping.wallFace;
         }
@@ -650,11 +669,12 @@ async function placeStashedArtwork(hit) {
       id: 'light_' + Date.now(),
       type: selectedStashItem.type,
       worldX: hit.point.x,
-      worldY: isHead ? gridDataLocal.wallHeight : mapping.wallY,
+      worldY: isHead ? (gridDataLocal.wallHeight || 4) : mapping.wallY,
       worldZ: hit.point.z,
       wallFace: isHead ? null : mapping.wallFace,
       intensity: isHead ? 2.0 : 1.5,
       angle: isHead ? 45 : 23,
+      rotation: 0,
       color: '#ffeedd'
     });
     // Re-arm with new ID so user can keep placing
