@@ -18,10 +18,11 @@
       <p>Click to enter Edit Mode</p>
       <div class="controls-info">
         <p><strong>WASD</strong>: Move &nbsp; <strong>Mouse</strong>: Look around</p>
-        <p><strong>1</strong>: Move/Place Artworks &nbsp; <strong>2</strong>: Dig Block &nbsp; <strong>3</strong>: Add Wall</p>
-        <p><strong>Left Click</strong>: Interact &nbsp; <strong>Right Click</strong>: Stash artwork</p>
+        <p><strong>1</strong>: Move/Place &nbsp; <strong>2</strong>: Dig Block &nbsp; <strong>3</strong>: Add Wall</p>
+        <p><strong>Scroll Wheel</strong>: Cycle stash items &nbsp; <strong>Left Click</strong>: Place / Move</p>
+        <p><strong>Right Click</strong>: Quick-stash artifact</p>
+        <p><strong>E</strong>: Edit artifact (when nearby) &nbsp; <strong>Esc</strong>: Unlock cursor</p>
         <p><strong>Ctrl+Z</strong>: Undo &nbsp; <strong>Ctrl+Y</strong>: Redo &nbsp; <strong>Ctrl+S</strong>: Save</p>
-        <p><strong>ESC</strong>: Unlock cursor</p>
       </div>
     </div>
   </div>
@@ -44,7 +45,7 @@
         <button id="redo-btn" class="btn-action" disabled title="Redo (Ctrl+Y)">↪ Redo</button>
         <button id="save-btn" class="btn-save" title="Save (Ctrl+S)">💾 Save</button>
       </div>
-      <div id="current-tool-info">Move & Place Artworks</div>
+      <div id="current-tool-info">Move &amp; Place Artworks</div>
     </div>
 
     <!-- Minimap -->
@@ -52,10 +53,46 @@
       <canvas id="minimap-canvas"></canvas>
     </div>
 
-    <!-- The Stash / Inventory -->
-    <div class="stash-container">
-      <h3>The Stash <button id="add-new-artwork-btn" class="btn-small">+ Add</button></h3>
-      <div id="stash-grid"></div>
+    <!-- ─── Stash Wheel (right-center vertical dock) ─── -->
+    <div id="stash-wheel">
+      <div id="stash-wheel-track"></div>
+      <div id="stash-wheel-label">Nothing selected</div>
+    </div>
+
+    <!-- ─── Artifact Interaction Prompt (near crosshair) ─── -->
+    <div id="artifact-prompt" class="hidden">
+      <span id="artifact-prompt-icon">✏️</span>
+      <span id="artifact-prompt-text">Edit</span>
+      <kbd>E</kbd>
+    </div>
+
+    <!-- ─── Edit Action Menu ─── -->
+    <div id="edit-action-menu" class="hidden">
+      <div id="eam-title">Artwork</div>
+      <button class="eam-btn" id="eam-move">🔀 Move <kbd>M</kbd></button>
+      <button class="eam-btn eam-adjust hidden" id="eam-adjust">🎛️ Adjust <kbd>A</kbd></button>
+      <button class="eam-btn eam-stash" id="eam-stash">📦 Stash <kbd>X</kbd></button>
+      <button class="eam-btn eam-cancel" id="eam-cancel">✕ Cancel <kbd>Esc</kbd></button>
+    </div>
+
+    <!-- ─── Light Adjust Panel ─── -->
+    <div id="light-adjust-panel" class="hidden">
+      <div class="lap-title">🎛️ Adjust Light</div>
+      <div class="lap-row">
+        <label>Intensity</label>
+        <input type="range" id="adj-intensity" min="0.1" max="10" step="0.1" value="2">
+        <span class="lap-val" id="adj-intensity-val">2.0</span>
+      </div>
+      <div class="lap-row">
+        <label>Spread</label>
+        <input type="range" id="adj-angle" min="5" max="90" step="1" value="45">
+        <span class="lap-val" id="adj-angle-val">45°</span>
+      </div>
+      <div class="lap-row lap-color-row">
+        <label>Color</label>
+        <input type="color" id="adj-color" value="#ffeedd">
+      </div>
+      <button id="adj-done" class="btn-action">✓ Done</button>
     </div>
 
     <!-- Tool Selection Hotbar -->
@@ -73,6 +110,11 @@
         <span class="slot-name">Add Wall</span>
       </div>
     </div>
+
+    <!-- Add artwork button (below hotbar) -->
+    <div style="text-align:center;padding-bottom:10px;pointer-events:auto;">
+      <button id="add-new-artwork-btn" class="btn-action">+ Add Artwork to Stash</button>
+    </div>
   </div>
 
   <!-- Upload Modal -->
@@ -83,7 +125,7 @@
         <input type="file" id="artwork-file" accept="image/*" required>
         <input type="text" id="artwork-title" placeholder="Title" required>
         <div class="modal-actions">
-          <button type="submit" class="btn-primary">Upload & Stash</button>
+          <button type="submit" class="btn-primary">Upload &amp; Stash</button>
           <button type="button" id="cancel-upload-btn">Cancel</button>
         </div>
       </form>

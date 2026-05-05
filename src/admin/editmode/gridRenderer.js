@@ -48,6 +48,7 @@ export async function buildGrid(parent, data, settings) {
   floorMeshGroup.name = 'grid-floors';
 
   wallCellMeshes.length = 0;
+  ceilingMeshes.length = 0;
   gridCollisionBoxes.length = 0;
 
   // Compute bounding box of active area
